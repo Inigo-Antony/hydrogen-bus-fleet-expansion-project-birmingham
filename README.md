@@ -1,17 +1,15 @@
-# Birmingham H₂ Bus Fleet – Techno-Economic Analysis
+# Birmingham H₂ Bus Fleet Expansion – Techno-Economic Analysis
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-A Python model for the techno-economic analysis of hydrogen refuelling infrastructure supporting Birmingham's 140-bus FCEV fleet expansion, including sensitivity analysis on electricity price, diesel breakeven pricing, and NPV/IRR calculations incorporating carbon cost benefits.
+A Python model for the techno-economic analysis of hydrogen refuelling infrastructure simulating Birmingham's 140-bus FCEV fleet expansion, including sensitivity analysis on electricity price, diesel breakeven pricing, and NPV/IRR calculations incorporating carbon cost benefits.
 
-This work extends a coursework report for the module *36869 Fuel Cell Electric Vehicles (2024–2025)* at the **University of Birmingham**, MSc Sustainable Energy Systems.
+This work extends a coursework report done during masters in Sustainable Energy Systems at the University of Birmingham and IIT Madras.
 
 ---
 
 ## Overview
-
-Birmingham City Council's *Clean Air Hydrogen Bus Pilot* currently operates 20 Wrightbus StreetDeck Hydroliner FCEV buses from Tyseley Energy Park. This model analyses the infrastructure requirements and economics of expanding the fleet to **140 buses** — requiring:
 
 - A **12 MWe PEM electrolyser expansion** at Tyseley (~£15.75M CAPEX)
 - A **4-station HRS network** across Birmingham depots (~£7.25M CAPEX)
@@ -73,8 +71,8 @@ Birmingham City Council's *Clean Air Hydrogen Bus Pilot* currently operates 20 W
 **1. Clone and install dependencies**
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/birmingham-h2-bus-fleet.git
-cd birmingham-h2-bus-fleet
+git clone https://github.com/Inigo-Antony/hydrogen-bus-fleet-expansion-project-birmingham.git
+cd hydrogen-bus-fleet-expansion-project-birmingham
 pip install -r requirements.txt
 ```
 
@@ -172,8 +170,6 @@ Full reference list: see original report (`ASSUMPTIONS.md`).
 
 **Inigo Antony Michael Selvam**  
 MSc Sustainable Energy Systems | University of Birmingham / IIT Madras  
-Published electrochemistry research in zinc-ion battery systems.  
-Interests: energy storage, thermodynamic modelling, FCEV infrastructure, techno-economic analysis.
 
 ---
 
