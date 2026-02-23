@@ -37,7 +37,8 @@ This work extends a coursework report done during masters in Sustainable Energy 
 ├── main.py                          # Run full analysis + generate all figures
 ├── Birmingham_H2_Bus_Analysis.ipynb # Jupyter notebook (interactive)
 ├── requirements.txt
-├── ASSUMPTIONS.md                   # All modelling assumptions with citations
+├── ASSUMPTIONS.md                   # All modelling assumptions documented
+├── Hydrogen Bus Fleet Expansion Birmingham.pdf  #report on the project
 ├── outputs/                         # Generated figures (9 PNG files)
 └── src/
     ├── parameters.py                # All baseline constants (fully documented)
