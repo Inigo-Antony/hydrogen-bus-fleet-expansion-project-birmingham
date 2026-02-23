@@ -1,8 +1,7 @@
 # Assumptions & Methodology Notes
 
 > **Project:** Birmingham H₂ Bus Fleet – Techno-Economic Analysis  
-> **Author:** Inigo Antony Michael Selvam  
-> **Programme:** MSc Sustainable Energy Systems, University of Birmingham / IIT Madras  
+> **Author:** Inigo Antony Michael Selvam, MSc Sustainable Energy Systems, University of Birmingham / IIT Madras  
 
 This document records all modelling assumptions, their basis, and known limitations.
 It is intended for anyone reviewing the model (academics, interviewers, collaborators).
@@ -141,4 +140,3 @@ A full lifecycle assessment (LCA) would increase emissions for both pathways, bu
 
 ---
 
-*Document version: 1.0 | Prepared for GitHub portfolio publication*
