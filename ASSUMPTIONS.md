@@ -1,6 +1,6 @@
 # Assumptions & Methodology Notes
 
-> **Project:** Birmingham H₂ Bus Fleet – Techno-Economic Analysis  
+> **Project:** Birmingham H₂ Bus Fleet Expansion – Techno-Economic Analysis  
 > **Author:** Inigo Antony Michael Selvam, MSc Sustainable Energy Systems, University of Birmingham / IIT Madras  
 
 This document records all modelling assumptions, their basis, and known limitations.
