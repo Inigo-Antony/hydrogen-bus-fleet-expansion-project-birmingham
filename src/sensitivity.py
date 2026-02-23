@@ -28,7 +28,8 @@ from src.parameters import (
     ELECTRICITY_PRICE_GBP_MWH, CARBON_PRICE_BASELINE,
     DISCOUNT_RATE, PROJECT_LIFE_YR, DIESEL_PRICE_GBP_LITRE,
     TRANSPORT_COST_GBP_KG, HRS_OPEX_GBP_KG,
-    ELECTROLYSER_EFFICIENCY_KWH_KG,
+    ELECTROLYSER_EFFICIENCY_KWH_KG, ELECTROLYSER_COST_PER_KW,
+    BOP_FRACTION,
 )
 from src.economics import (
     calculate_lcoh, calculate_annual_costs, calculate_npv_irr, diesel_breakeven_price
@@ -380,66 +381,29 @@ def plot_capex_breakdown():
 def plot_tornado_lcoh():
     """
     One-at-a-time sensitivity: each parameter varied ±20% from baseline.
-    Shows the resulting change in total dispensed LCOH.
+    Uses explicit override kwargs in calculate_lcoh — avoids the Python
+    'from ... import' local-binding issue that makes monkey-patching ineffective.
     """
     baseline_lcoh = calculate_lcoh().total_dispensed_cost_gbp_kg
 
-    # Parameter definitions: (label, param_name, low_multiplier, high_multiplier)
+    # Each entry: (display label, kwarg name in calculate_lcoh, baseline value)
     params = [
-        ("Electricity price",         "elec",    0.80, 1.20),
-        ("Electrolyser efficiency",   "eff",     0.80, 1.20),
-        ("CAPEX (electrolyser)",      "capex",   0.80, 1.20),
-        ("BoP fraction",              "bop",     0.80, 1.20),
-        ("Transport cost",            "trans",   0.80, 1.20),
-        ("HRS OPEX",                  "hrs",     0.80, 1.20),
-        ("Discount rate",             "dr",      0.80, 1.20),
+        ("Electricity price",       "electricity_price_gbp_mwh",        ELECTRICITY_PRICE_GBP_MWH),
+        ("Electrolyser efficiency", "electrolyser_efficiency_kwh_kg",    ELECTROLYSER_EFFICIENCY_KWH_KG),
+        ("Electrolyser CAPEX",      "electrolyser_cost_per_kw",          ELECTROLYSER_COST_PER_KW),
+        ("BoP fraction",            "bop_fraction",                      BOP_FRACTION),
+        ("Transport cost",          "transport_cost_gbp_kg",             TRANSPORT_COST_GBP_KG),
+        ("HRS OPEX",                "hrs_opex_gbp_kg_override",          HRS_OPEX_GBP_KG),
+        ("Discount rate",           "discount_rate",                     DISCOUNT_RATE),
     ]
 
-    from src.parameters import (
-        ELECTROLYSER_EFFICIENCY_KWH_KG as EFF,
-        BOP_FRACTION, TRANSPORT_COST_GBP_KG as TC, HRS_OPEX_GBP_KG as HO,
-    )
-
     results = []
-    for label, key, low_m, high_m in params:
-        # --- low ---
-        if key == "elec":
-            low_val  = calculate_lcoh(ELECTRICITY_PRICE_GBP_MWH * low_m).total_dispensed_cost_gbp_kg
-            high_val = calculate_lcoh(ELECTRICITY_PRICE_GBP_MWH * high_m).total_dispensed_cost_gbp_kg
-        elif key == "dr":
-            low_val  = calculate_lcoh(discount_rate=DISCOUNT_RATE * low_m).total_dispensed_cost_gbp_kg
-            high_val = calculate_lcoh(discount_rate=DISCOUNT_RATE * high_m).total_dispensed_cost_gbp_kg
-        elif key in ("eff", "capex", "bop", "trans", "hrs"):
-            # Perturb parameters inline by monkey-patching temporarily
-            import src.parameters as P
-            orig_vals = {
-                "eff":   P.ELECTROLYSER_EFFICIENCY_KWH_KG,
-                "capex": P.ELECTROLYSER_COST_PER_KW,
-                "bop":   P.BOP_FRACTION,
-                "trans": P.TRANSPORT_COST_GBP_KG,
-                "hrs":   P.HRS_OPEX_GBP_KG,
-            }
-            attr_map = {
-                "eff": "ELECTROLYSER_EFFICIENCY_KWH_KG",
-                "capex": "ELECTROLYSER_COST_PER_KW",
-                "bop": "BOP_FRACTION",
-                "trans": "TRANSPORT_COST_GBP_KG",
-                "hrs": "HRS_OPEX_GBP_KG",
-            }
-            attr = attr_map[key]
-            orig = getattr(P, attr)
-
-            setattr(P, attr, orig * low_m)
-            low_val = calculate_lcoh().total_dispensed_cost_gbp_kg
-            setattr(P, attr, orig * high_m)
-            high_val = calculate_lcoh().total_dispensed_cost_gbp_kg
-            setattr(P, attr, orig)  # restore
-        else:
-            continue
-
+    for label, kwarg, base_val in params:
+        low_val  = calculate_lcoh(**{kwarg: base_val * 0.80}).total_dispensed_cost_gbp_kg
+        high_val = calculate_lcoh(**{kwarg: base_val * 1.20}).total_dispensed_cost_gbp_kg
         results.append((label, low_val - baseline_lcoh, high_val - baseline_lcoh))
 
-    # Sort by total swing descending
+    # Sort by total swing (largest impact at top)
     results.sort(key=lambda x: abs(x[2] - x[1]), reverse=True)
 
     labels = [r[0] for r in results]
@@ -448,21 +412,34 @@ def plot_tornado_lcoh():
 
     fig, ax = plt.subplots(figsize=(9, 5.5))
     y = np.arange(len(labels))
-    ax.barh(y, [h if h < 0 else 0 for h in highs], left=0,
-            color=PALETTE["green"], height=0.5, label="+20% param (if lowers cost)")
-    ax.barh(y, [h if h > 0 else 0 for h in highs], left=0,
-            color=PALETTE["red"], height=0.5, label="+20% param (if raises cost)")
-    ax.barh(y, [l if l > 0 else 0 for l in lows], left=0,
-            color=PALETTE["green"], height=0.5)
-    ax.barh(y, [l if l < 0 else 0 for l in lows], left=0,
-            color=PALETTE["blue"], height=0.5, label="−20% param")
+
+    for i, (lo, hi) in enumerate(zip(lows, highs)):
+        # Bar spanning from low to high, centred on zero
+        left  = min(lo, hi)
+        width = abs(hi - lo)
+        colour = PALETTE["red"] if hi > 0 else PALETTE["green"]
+        ax.barh(i, width, left=left, height=0.5, color=colour, alpha=0.82)
+
+        # Annotate low/high values
+        ax.text(lo - 0.003, i, f"{lo:+.3f}", va="center", ha="right", fontsize=8.5)
+        ax.text(hi + 0.003, i, f"{hi:+.3f}", va="center", ha="left",  fontsize=8.5)
 
     ax.set_yticks(y)
     ax.set_yticklabels(labels, fontsize=11)
     ax.axvline(0, color="black", lw=1.3)
     ax.set_xlabel("Change in Dispensed LCOH  (£/kg H₂)")
-    ax.set_title(f"Tornado Chart: LCOH Sensitivity to ±20% Parameter Variation\n(Baseline LCOH = £{baseline_lcoh:.2f}/kg)")
-    ax.legend(fontsize=9, loc="lower right")
+    ax.set_title(
+        f"Tornado Chart: LCOH Sensitivity to ±20% Parameter Variation\n"
+        f"(Baseline LCOH = £{baseline_lcoh:.2f}/kg)"
+    )
+
+    # Custom legend
+    from matplotlib.patches import Patch
+    ax.legend(handles=[
+        Patch(color=PALETTE["red"],   alpha=0.82, label="Increases LCOH (+20%)"),
+        Patch(color=PALETTE["green"], alpha=0.82, label="Decreases LCOH (+20%)"),
+    ], fontsize=9, loc="lower right")
+
     fig.tight_layout()
     _savefig(fig, "lcoh_sensitivity_tornado.png")
 

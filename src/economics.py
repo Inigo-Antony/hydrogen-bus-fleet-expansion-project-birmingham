@@ -22,6 +22,7 @@ from src.parameters import (
     DAILY_MILEAGE_KM, TOTAL_BUSES, DAYS_PER_YEAR,
     ELECTROLYSER_OPEX_FRAC, STACK_REPLACEMENT_FRACTION,
     OPERATING_HOURS_PER_YR, CARBON_PRICE_BASELINE,
+    ELECTROLYSER_COST_PER_KW, BOP_FRACTION,
 )
 from src.demand import calculate_demand
 from src.infrastructure import calculate_capex
@@ -89,13 +90,15 @@ class LCOHBreakdown:
 
 
 def calculate_lcoh(
-    electricity_price_gbp_mwh: float = ELECTRICITY_PRICE_GBP_MWH,
-    electrolyser_efficiency_kwh_kg: float = ELECTROLYSER_EFFICIENCY_KWH_KG,
-    electrolyser_cost_per_kw: float = ELECTROLYSER_COST_PER_KW,
-    bop_fraction: float = BOP_FRACTION,
-    transport_cost_gbp_kg: float = TRANSPORT_COST_GBP_KG,
-    hrs_opex_gbp_kg_override: float = HRS_OPEX_GBP_KG,
-    discount_rate: float = DISCOUNT_RATE,
+    electricity_price_gbp_mwh:  float = ELECTRICITY_PRICE_GBP_MWH,
+    discount_rate:               float = DISCOUNT_RATE,
+    # Explicit overrides for sensitivity / tornado analysis.
+    # When None, the value from parameters.py is used.
+    electrolyser_efficiency_kwh_kg: Optional[float] = None,
+    electrolyser_cost_per_kw:       Optional[float] = None,
+    bop_fraction:                   Optional[float] = None,
+    transport_cost_gbp_kg:          Optional[float] = None,
+    hrs_opex_gbp_kg_override:       Optional[float] = None,
 ) -> LCOHBreakdown:
     """
     Levelised Cost of Hydrogen at the dispenser (£/kg).
@@ -106,20 +109,31 @@ def calculate_lcoh(
     2. CAPEX amortised: annual_capex / annual_production
     3. Non-energy OPEX: opex_frac × CAPEX / annual_production
     4. Stack replacement: stack_frac × CAPEX / annual_production
+
+    All parameters default to the values in parameters.py. Pass explicit values
+    to override individual parameters for sensitivity analysis — this avoids the
+    Python "from ... import" local-binding issue that breaks monkey-patching.
     """
-    # Allow overriding electrolyser CAPEX/BoP via arguments and pass them to calculate_capex
+    # Resolve effective parameter values
+    eff      = electrolyser_efficiency_kwh_kg if electrolyser_efficiency_kwh_kg is not None else ELECTROLYSER_EFFICIENCY_KWH_KG
+    cost_kw  = electrolyser_cost_per_kw       if electrolyser_cost_per_kw       is not None else ELECTROLYSER_COST_PER_KW
+    bop_frac = bop_fraction                   if bop_fraction                   is not None else BOP_FRACTION
+    trans    = transport_cost_gbp_kg          if transport_cost_gbp_kg          is not None else TRANSPORT_COST_GBP_KG
+    hrs_opex = hrs_opex_gbp_kg_override       if hrs_opex_gbp_kg_override       is not None else HRS_OPEX_GBP_KG
+
+    # Recalculate electrolyser CAPEX with potentially overridden cost/kW and BoP fraction
+    from src.infrastructure import calculate_capex
     capex = calculate_capex(
-        electrolyser_cost_per_kw=electrolyser_cost_per_kw,
-        bop_fraction=bop_fraction,
+        electrolyser_cost_per_kw=cost_kw,
+        bop_fraction=bop_frac,
     )
-    demand = calculate_demand()
 
     # Annual H2 production from new electrolyser
     annual_prod_kg = NEW_ELECTROLYSER_MWE * ELECTROLYSER_YIELD * DAYS_PER_YEAR
 
     # 1. Electricity cost
-    elec_gbp_kwh = electricity_price_gbp_mwh / 1_000
-    electricity_cost = electrolyser_efficiency_kwh_kg * elec_gbp_kwh           # £/kg
+    elec_gbp_kwh    = electricity_price_gbp_mwh / 1_000
+    electricity_cost = eff * elec_gbp_kwh                                       # £/kg
 
     # 2. CAPEX amortised using capital recovery factor
     crf = _annuity_factor(discount_rate, ELECTROLYSER_LIFETIME_YR)
@@ -135,8 +149,7 @@ def calculate_lcoh(
     stack_per_kg = annual_stack / annual_prod_kg                                # £/kg
 
     production_lcoh = electricity_cost + capex_per_kg + opex_per_kg + stack_per_kg
-
-    total_cost = production_lcoh + transport_cost_gbp_kg + hrs_opex_gbp_kg_override
+    total_cost      = production_lcoh + trans + hrs_opex
 
     return LCOHBreakdown(
         electricity_cost_gbp_kg=round(electricity_cost, 3),
@@ -144,8 +157,8 @@ def calculate_lcoh(
         opex_non_energy_gbp_kg=round(opex_per_kg, 3),
         stack_replacement_gbp_kg=round(stack_per_kg, 3),
         production_lcoh_gbp_kg=round(production_lcoh, 3),
-        transport_gbp_kg=TRANSPORT_COST_GBP_KG,
-        hrs_opex_gbp_kg=HRS_OPEX_GBP_KG,
+        transport_gbp_kg=round(trans, 3),
+        hrs_opex_gbp_kg=round(hrs_opex, 3),
         total_dispensed_cost_gbp_kg=round(total_cost, 3),
     )
 
