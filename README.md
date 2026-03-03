@@ -1,4 +1,4 @@
-# Birmingham H₂ Bus Fleet Expansion – Plan and Techno-Economic Analysis
+# Birmingham H₂ Bus Fleet Expansion - Plan and Techno-Economic Analysis
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -51,60 +51,7 @@ This work extends a coursework report done during masters in Sustainable Energy 
 
 ---
 
-## Figures Generated
-
-| File | Description |
-|------|-------------|
-| `lcoh_vs_electricity.png` | Stacked LCOH components vs electricity price |
-| `annual_cost_vs_elec.png` | H₂ vs diesel annual fleet cost crossover |
-| `breakeven_diesel.png` | Diesel price parity vs electricity price (multiple carbon scenarios) |
-| `npv_vs_elec_carbon.png` | NPV sensitivity to electricity & carbon price |
-| `irr_vs_elec.png` | IRR vs electricity price with WACC hurdle rate |
-| `npv_heatmap.png` | 2D NPV heatmap: electricity price × carbon price |
-| `emissions_comparison.png` | WtW annual CO₂e bar chart + H₂ pathway breakdown |
-| `capex_breakdown.png` | Infrastructure CAPEX waterfall |
-| `lcoh_sensitivity_tornado.png` | Tornado chart: ±20% one-at-a-time parameter sensitivity |
-
----
-
-## Quickstart
-
-**1. Clone and install dependencies**
-
-```bash
-git clone https://github.com/Inigo-Antony/hydrogen-bus-fleet-expansion-project-birmingham.git
-cd hydrogen-bus-fleet-expansion-project-birmingham
-pip install -r requirements.txt
-```
-
-**2. Run the full analysis**
-
-```bash
-python main.py
-```
-
-This prints a full results summary to the console and saves all 9 figures to `./outputs/`.
-
-**3. Interactive notebook**
-
-```bash
-jupyter notebook Birmingham_H2_Bus_Analysis.ipynb
-```
-
-**4. Modify parameters**
-
-All constants are centralised in `src/parameters.py`. Change the baseline electricity price, fleet size, discount rate, or any other assumption there — all downstream calculations update automatically.
-
-```python
-# Example: assess impact of cheaper offshore wind PPAs
-from src.economics import calculate_lcoh
-lcoh_40 = calculate_lcoh(electricity_price_gbp_mwh=40)
-print(f"LCOH at £40/MWh: £{lcoh_40.total_dispensed_cost_gbp_kg:.2f}/kg")
-```
-
----
-
-## Sensitivity Analyses
+## Sensitivity Analysis
 
 ### Electricity Price (£20–£120/MWh)
 The single largest driver of LCOH. At **£20/MWh** (aggressive offshore wind PPA), H₂ at the dispenser drops to ~£4/kg, well below diesel parity. At **£120/MWh** (grid industrial tariff), cost rises to ~£12/kg, making diesel strongly preferable on fuel cost alone.
@@ -150,6 +97,43 @@ IRR solved by bisection on NPV(r) = 0.
 H2_EF = (electrolyser_kWh/kg × grid_gCO2e/kWh)   [production]
       + (HRS_kWh/kg × grid_gCO2e/kWh)              [compression]
       + transport_factor                             [truck delivery]
+```
+
+---
+
+## Quickstart
+
+**1. Clone and install dependencies**
+
+```bash
+git clone https://github.com/Inigo-Antony/hydrogen-bus-fleet-expansion-project-birmingham.git
+cd hydrogen-bus-fleet-expansion-project-birmingham
+pip install -r requirements.txt
+```
+
+**2. Run the full analysis**
+
+```bash
+python main.py
+```
+
+This prints a full results summary to the console and saves all 9 figures to `./outputs/`.
+
+**3. Interactive notebook**
+
+```bash
+jupyter notebook Birmingham_H2_Bus_Analysis.ipynb
+```
+
+**4. Modify parameters**
+
+All constants are centralised in `src/parameters.py`. Change the baseline electricity price, fleet size, discount rate, or any other assumption there — all downstream calculations update automatically.
+
+```python
+# Example: assess impact of cheaper offshore wind PPAs
+from src.economics import calculate_lcoh
+lcoh_40 = calculate_lcoh(electricity_price_gbp_mwh=40)
+print(f"LCOH at £40/MWh: £{lcoh_40.total_dispensed_cost_gbp_kg:.2f}/kg")
 ```
 
 ---
