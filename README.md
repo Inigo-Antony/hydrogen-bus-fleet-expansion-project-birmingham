@@ -3,7 +3,7 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-A detialed plan and techno-economic analysis (Python model) of hydrogen refuelling infrastructure simulating Birmingham's 140-bus FCEV fleet expansion, including sensitivity analysis on electricity price, diesel breakeven pricing, and NPV/IRR calculations incorporating carbon cost benefits.
+A detailed plan and techno-economic analysis (Python model) of hydrogen refuelling infrastructure simulating Birmingham's 140-bus FCEV fleet expansion, including sensitivity analysis on electricity price, diesel breakeven pricing, and NPV/IRR calculations incorporating carbon cost benefits.
 
 This work extends a coursework report done during masters in Sustainable Energy Systems at the University of Birmingham and IIT Madras.
 
