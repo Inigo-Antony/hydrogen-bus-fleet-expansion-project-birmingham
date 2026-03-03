@@ -1,9 +1,9 @@
-# Birmingham H₂ Bus Fleet Expansion – Techno-Economic Analysis
+# Birmingham H₂ Bus Fleet Expansion – Plan and Techno-Economic Analysis
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-A Python model for the techno-economic analysis of hydrogen refuelling infrastructure simulating Birmingham's 140-bus FCEV fleet expansion, including sensitivity analysis on electricity price, diesel breakeven pricing, and NPV/IRR calculations incorporating carbon cost benefits.
+A detialed plan and techno-economic analysis (Python model) of hydrogen refuelling infrastructure simulating Birmingham's 140-bus FCEV fleet expansion, including sensitivity analysis on electricity price, diesel breakeven pricing, and NPV/IRR calculations incorporating carbon cost benefits.
 
 This work extends a coursework report done during masters in Sustainable Energy Systems at the University of Birmingham and IIT Madras.
 
@@ -163,7 +163,7 @@ H2_EF = (electrolyser_kWh/kg × grid_gCO2e/kWh)   [production]
 5. Wrightbus. *StreetDeck Hydroliner FCEV product datasheet.*
 6. Tyseley Energy Park. *Tyseley Refuelling Hub.* https://www.tyseleyenergy.co.uk
 
-Full reference list: see original report (`ASSUMPTIONS.md`).
+Full reference list: see original report (` Hydrogen Bus Fleet Expansion Birmingham.pdf`).
 
 ---
 
