@@ -31,7 +31,7 @@ This work extends a coursework report done during masters in Sustainable Energy 
 
 ![hydrogen-bus-fleet-expansion-project-birmingham](outputs/lcoh_vs_electricity.png)
 
-*'for more graph results refer outputs directory'*
+*for more graph results refer outputs directory*
 
 ---
 
