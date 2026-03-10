@@ -29,7 +29,8 @@ This work extends a coursework report done during masters in Sustainable Energy 
 | IRR | 20.5% |
 | Simple payback | 4.8 years |
 
-![hydrogen-bus-fleet-expansion-project-birmingham] outputs/lcoh_vs_electricity.png
+![hydrogen-bus-fleet-expansion-project-birmingham](outputs/lcoh_vs_electricity.png)
+
 ---
 
 ## Repository Structure
